@@ -1,0 +1,8 @@
+tex/*.aux
+tex/*.log
+tex/*.lof
+tex/*.lot
+tex/*.toc
+tex/*.synctex.gz
+tex/*.out
+
