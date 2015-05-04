@@ -228,8 +228,8 @@ Notes:
                 \item \textbf{Description:}
                     Given a start Person, find Tags that are attached to Posts that
                     were created by that Person's friends.  Only include Tags that were
-                    attached to Posts created within a given time interval, and that
-                    were never attached to Posts created before this interval.  Return
+                    attached to friends' Posts created within a given time interval, and that
+                    were never attached to friends' Posts created before this interval.  Return
                     top 10 Tags, and the count of Posts, which were created within the
                     given time interval, that this Tag was attached to.  Sort results
                     descending by Post count, and then ascending by Tag name.
@@ -432,15 +432,16 @@ Notes:
     \item Expert search
         \begin{itemize}
             \item \textbf{Description:}
-                Given a start Person, find the Comments that this Person's friends
-                made in reply to Posts, considering only those Comments that are
-                immediate (1-hop) replies to Posts, not the transitive (multi-hop) case.
-                Only consider Posts with a Tag in a given TagClass or in a
-                descendent of that TagClass.  Count the number of these reply
-                Comments, and collect the Tags that were attached to the Posts they
-                replied to.  Return top 20 Persons, the reply count, and the
-                collection of Tags.  Sort results descending by Comment count, and
-                then ascending by Person identifier
+                Given a start Person, find the Comments that this Person's
+                friends made in reply to Posts, considering only those Comments
+                that are immediate (1-hop) replies to Posts, not the transitive
+                (multi-hop) case.  Only consider Posts with a Tag in a given
+                TagClass or in a descendent of that TagClass.  Count the number
+                of these reply Comments, and collect the Tags (with valid tag
+                class) that were attached to the Posts they replied to.  Return
+                top 20 Persons with at least one reply, the reply count, and
+                the collection of Tags.  Sort results descending by Comment
+                count, and then ascending by Person identifier
             \item \textbf{Parameters:} \\
                 \begin{tabular}{lll}
                     Person.id 	 					& ID & \parbox[t]{20cm}{\par \strut} \\
@@ -507,6 +508,7 @@ Notes:
 
 \subsubsection{Short Reads Query Descriptions}
 
+{\small 
 \begin{enumerate}
 
   \item Person Profile
@@ -533,8 +535,9 @@ Notes:
   \item Person Recent Messages
     \begin{itemize}
       \item \textbf{Description:}
-        Given a start Person, retrieve the last 10 Messages (Posts or Comments) created by that person.
+        Given a start Person, retrieve the last 10 Messages (Posts or Comments) created by that user.
         For each message, return that message, the original post in its conversation, and the author of that post.
+        If any of the Messages is a Post, then the original Post will be the same Message, i.e., that Message will appear twice in that result.
         Order results descending by message creation date, then descending by message identifier
       \item \textbf{Parameters:} \\
         \begin{tabular}{lll}
@@ -604,7 +607,10 @@ Notes:
   \item Message Forum 
     \begin{itemize}
       \item \textbf{Description:}
-        Given a Message (Post or Comment), retrieve the Forum that contains it and the Person that moderates that forum.
+        Given a Message (Post or Comment), retrieve the Forum that contains it
+        and the Person that moderates that forum. Since comments are not
+        directly contained in forums, for comments, return the forum containing
+        the original post in the thread which the comment is replying to. 
       \item \textbf{Parameters:} \\
         \begin{tabular}{lll}
           Message.id 										& ID \\
@@ -612,10 +618,10 @@ Notes:
       \item \textbf{Results:} \\
         \begin{tabular}{lll}
           Message<-containerOf-Forum.id                       & ID \\
-          Message<-containerOf->Forum.title     									& String \\
-          Message<-containerOf->Forum-hasModerator->Person.id     									& ID \\
-          Message<-containerOf->Forum-hasModerator->Person.firstName    									& String \\
-          Message<-containerOf->Forum-hasModerator->Person.lastName    									& String \\
+          Message<-containerOf-Forum.title     									& String \\
+          Message<-containerOf-Forum-hasModerator->Person.id     									& ID \\
+          Message<-containerOf-Forum-hasModerator->Person.firstName    									& String \\
+          Message<-containerOf-Forum-hasModerator->Person.lastName    									& String \\
         \end{tabular}
     \end{itemize}
 
@@ -625,7 +631,7 @@ Notes:
         Given a Message (Post or Comment), retrieve the (1-hop) Comments that reply to it.
         In addition, return a boolean flag indicating if the author of the reply knows the author of the original message.
         If author is same as original author, return false for "knows" flag.
-        Order results descending by comment identifier, then descending by author identifier.
+        Order results descending by creation date, then ascending by author identifier.
       \item \textbf{Parameters:} \\
         \begin{tabular}{lll}
           Message.id 										& ID \\
@@ -642,8 +648,10 @@ Notes:
     \end{itemize}
 
 \end{enumerate}
+}
 
 \subsubsection{Update Query Descriptions}
+{\small
 \begin{enumerate}
     \item Add Person 
         \begin{itemize}
@@ -758,6 +766,7 @@ Notes:
                         \end{tabular}		
                 \end{itemize}
         \end{enumerate}
+      }
 
         \subsubsection{Substitution parameters}\label{section:substitution}
         \input{workloads/parameters}
